@@ -1,0 +1,42 @@
+# Asset management is recommended to take place in the default location /etc/ansible/hosts 
+
+[all]
+# ansible default - every host must be listed here
+51.161.33.13 ansible_ssh_user=ubuntu
+164.132.55.138 ansible_ssh_user=ubuntu
+144.217.7.150 ansible_ssh_user=ubuntu
+164.132.55.139 ansible_ssh_user=ubuntu
+144.217.4.77 ansible_ssh_user=ubuntu
+144.217.5.107 ansible_ssh_user=ubuntu
+164.132.55.129 ansible_ssh_user=ubuntu
+51.79.69.211 ansible_ssh_user=ubuntu
+
+[master]
+# kubernetes masters nodes
+51.161.33.13 ansible_ssh_user=ubuntu
+164.132.55.138 ansible_ssh_user=ubuntu
+
+[etcd]
+# kubernetes etcd nodes
+144.217.7.150 ansible_ssh_user=ubuntu
+164.132.55.139 ansible_ssh_user=ubuntu
+144.217.4.77 ansible_ssh_user=ubuntu
+
+[lb]
+# load balancer nodes
+144.217.7.150 ansible_ssh_user=ubuntu
+164.132.55.139 ansible_ssh_user=ubuntu
+
+[worker]
+# kubernetes workers nodes
+144.217.5.107 ansible_ssh_user=ubuntu
+164.132.55.129 ansible_ssh_user=ubuntu
+
+[wireguard]
+# Wireguard servers
+144.217.4.77 ansible_ssh_user=ubuntu
+51.79.69.211 ansible_ssh_user=ubuntu
+
+[netbackup]
+# Wireguard Backup Server
+51.79.69.211 ansible_ssh_user=ubuntu
