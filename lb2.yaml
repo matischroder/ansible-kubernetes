@@ -1,0 +1,18 @@
+- hosts: lb[1]
+  remote_user: ubuntu
+  become: true
+
+  tasks:
+    - name: Update keepalived config file
+      copy: 
+        src: ~/Qubistry/ansible-chainlink/keepalived-lb2.conf
+        dest: /etc/keepalived/keepalived.conf
+        mode: 0644
+
+
+    - name: Start keepalived
+      ansible.builtin.systemd:
+        name: keepalived
+        state: started
+        enabled: yes
+        masked: no

@@ -1,0 +1,49 @@
+- hosts: lb
+  remote_user: ubuntu
+  become: true
+
+  tasks:
+  - name: Update and upgrade apt packages
+    apt:
+      update_cache: yes
+      cache_valid_time: 86400
+      upgrade: yes
+    
+  - name: Install haproxy
+    apt:
+      name: haproxy
+      state: present
+
+  - name: Update haproxy config file
+    copy: 
+      src: ~/Qubistry/ansible-chainlink/haproxy.cfg
+      dest: /etc/haproxy/haproxy.cfg
+      mode: 0644
+
+  - name: Bind ipv4
+    ansible.posix.sysctl:
+      name: net.ipv4.ip_nonlocal_bind
+      value: 1
+      state: present
+      sysctl_set: true
+      reload: true
+
+  - name: Start haproxy
+    ansible.builtin.systemd:
+      name: haproxy
+      state: started
+      enabled: yes
+      masked: no
+
+  - name: Install keepalived
+    apt:
+      name: keepalived
+      state: present
+  
+  - name: Script file executed by keepalived
+    copy:
+     src: ~/Qubistry/ansible-chainlink/check_apiserver.sh
+     dest: /etc/keepalived/check_apiserver.sh
+     mode: 0755
+
+    
