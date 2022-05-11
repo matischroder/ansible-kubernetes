@@ -1,0 +1,95 @@
+- hosts: basics
+  remote_user: ubuntu
+
+  tasks:
+
+  - name: Update and upgrade apt packages
+    apt:
+      update_cache: yes
+      cache_valid_time: 86400
+      upgrade: yes
+    become: true
+  
+  - name: Install docker dependecies
+    apt:
+      name: 
+        - ca-certificates
+        - curl
+        - gnupg
+        - lsb-release
+      state: present
+    become: true
+
+  - name: Add GPG key
+    shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --yes --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+  - name: Add docker repository
+    shell: |
+      echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+  - name: Install docker and containerd
+    apt:
+      name:
+        - docker-ce 
+        - docker-ce-cli
+        - containerd.io
+      update_cache: yes
+      state: latest
+    become: true
+
+  - name: Make sure docker service is active
+    service:
+      name: docker
+      state: started
+      enabled: yes
+    become: true
+
+  - name: Get docker version
+    shell: docker -v
+
+  - name: Install kubernetes dependecies
+    apt:
+      update_cache: yes
+      name: 
+      - apt-transport-https
+      - ca-certificates
+      state: present
+    become: true
+
+  - name: Get kubernetes keys 
+    shell: sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+
+  - name: Add kubernetes repository
+    shell: echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+  - name: Install kubernetes
+    apt:
+      update_cache: yes
+      name:
+        - kubelet 
+        - kubeadm
+        - kubectl
+    become: true
+
+  - name: Hold kubernetes
+    dpkg_selections:
+      name: "{{item}}"
+      selection: hold
+    loop:
+      - kubelet 
+      - kubeadm
+      - kubectl
+    become: true
+
+  - name: Get kubernetes version
+    shell: kubeadm version
+
+  - name: Disable memory swap
+    shell: |
+       swapoff -a
+       sudo sed -i '/ swap / s/^/#/' /etc/fstab
+
+    
+       
+    
+  
