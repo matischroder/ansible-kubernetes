@@ -11,6 +11,17 @@
 164.132.55.129 ansible_ssh_user=ubuntu
 51.79.69.211 ansible_ssh_user=ubuntu
 
+[basics]
+# all kubernetes nodes
+51.161.33.13 ansible_ssh_user=ubuntu
+164.132.55.138 ansible_ssh_user=ubuntu
+144.217.7.150 ansible_ssh_user=ubuntu
+164.132.55.139 ansible_ssh_user=ubuntu
+144.217.4.77 ansible_ssh_user=ubuntu
+144.217.5.107 ansible_ssh_user=ubuntu
+164.132.55.129 ansible_ssh_user=ubuntu
+51.79.69.211 ansible_ssh_user=ubuntu
+
 [master]
 # kubernetes masters nodes
 51.161.33.13 ansible_ssh_user=ubuntu
