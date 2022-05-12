@@ -1,0 +1,49 @@
+- hosts: etcd 
+  remote_user: ubuntu
+
+  tasks:
+  - name: Configure kubelet
+    copy: 
+      src: ~/Qubistry/ansible-chainlink/etcd/kubelet-config.yaml
+      dest: /var/lib/kubelet/config.yaml
+    become: true
+  
+  - name: Configure etcd service
+    copy: 
+      src: ~/Qubistry/ansible-chainlink/etcd/kubelet.service.d_20-etcd-service-manager.conf
+      dest: /etc/systemd/system/kubelet.service.d/20-etcd-service-manager.conf
+    become: true
+
+  - name: Configure containerd
+    shell: containerd config default > /etc/containerd/config.toml
+    become: true
+
+  - name: Restart services 
+    systemd:
+      daemon_reload: yes
+      name: "{{ item }}"
+      state: restarted
+    loop:
+      - containerd 
+      - kubelet
+    become: true
+
+  - name: Test etcd nodes
+    shell: |
+      docker run --rm -it \
+      --net host \
+      -v /etc/kubernetes:/etc/kubernetes k8s.gcr.io/etcd:3.5.1-0 etcdctl \
+      --cert /etc/kubernetes/pki/etcd/peer.crt \
+      --key /etc/kubernetes/pki/etcd/peer.key \
+      --cacert /etc/kubernetes/pki/etcd/ca.crt \
+      --endpoints https://192.168.0.2:2379 endpoint health --cluster
+    register: shell_result
+    failed_when: "'Error' in shell_result.stderr"
+
+  - name: Configure etcd nodes if test fail 
+    shell: kubeadm reset -f
+    when: "'Error' in shell_result.stderr"
+
+  - name: Configure etcd nodes if test fail 
+    include_tasks: etcd_credentials.yaml
+    when: "'Error' in shell_result.stderr"
