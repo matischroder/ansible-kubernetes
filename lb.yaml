@@ -16,7 +16,7 @@
 
   - name: Update haproxy config file
     copy: 
-      src: ~/Qubistry/ansible-chainlink/haproxy.cfg
+      src: ~/Qubistry/ansible-chainlink/lb/haproxy.cfg
       dest: /etc/haproxy/haproxy.cfg
       mode: 0644
 
@@ -42,7 +42,7 @@
   
   - name: Script file executed by keepalived
     copy:
-     src: ~/Qubistry/ansible-chainlink/check_apiserver.sh
+     src: ~/Qubistry/ansible-chainlink/lb/check_apiserver.sh
      dest: /etc/keepalived/check_apiserver.sh
      mode: 0755
 
