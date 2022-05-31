@@ -1,0 +1,35 @@
+- hosts: basics
+  remote_user: ubuntu
+  become: true
+
+  tasks:
+  - name: Copy server config file
+    fetch: 
+      src: /etc/wireguard/wg0.conf
+      dest: /tmp/
+    when: "{{ inventory_hostname == 'vps-a1922212' }}"
+
+  - name: Remove extra text from clients
+    replace: 
+      path: /etc/wireguard/wg0.conf
+      after: 'Endpoint = 15.235.60.92:52345'
+      regexp: '^(.+)$'
+      replace: '# \1'
+
+  - name: Copy from local to server 
+    copy:
+      src: /tmp/wg0.conf
+      dest: /etc/wireguard/
+    when: "{{ inventory_hostname == 'vps-a1922212' }}"
+
+  - name: Copy from local to backup server 
+    copy:
+      src: /tmp/wg0.conf
+      dest: /etc/wireguard/
+    when: "{{ inventory_hostname ==  'vps-e7d30833' }}"
+
+  - name: Restart wg0 system 
+    ansible.builtin.systemd:
+      state: restarted
+      daemon_reload: yes
+      name: wg-quick@wg0.service
