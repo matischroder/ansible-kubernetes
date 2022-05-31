@@ -1,0 +1,12 @@
+# /etc/systemd/system/checkserver.service
+
+[Unit]
+Description=Check keepalived to change ip via API
+ 
+[Service]
+Type=simple
+ExecStart=/home/ubuntu/bin/checkserver.sh
+PIDFile=/tmp/checkserver.pid
+ 
+[Install]
+WantedBy=multi-user.target

@@ -28,6 +28,12 @@ all:
               ansible_ssh_user: ubuntu
             164.132.55.129: 
               ansible_ssh_user: ubuntu
+        wireguard-servers:
+          hosts:
+            144.217.4.77:
+              ansible_ssh_user: ubuntu
+            51.79.69.211:
+              ansible_ssh_user: ubuntu
     wireguard:
       hosts:
         #server
