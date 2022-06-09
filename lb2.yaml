@@ -5,7 +5,7 @@
   tasks:
     - name: Update keepalived config file
       copy: 
-        src: ~/Qubistry/ansible-chainlink/lb/keepalived-lb2.conf
+        src: ./lb/keepalived-lb2.conf
         dest: /etc/keepalived/keepalived.conf
         mode: 0644
 
