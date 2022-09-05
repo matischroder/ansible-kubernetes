@@ -1,0 +1,89 @@
+- hosts: all
+  remote_user: ubuntu
+  become: true
+
+  tasks:
+    
+  - name: Update and upgrade apt packages
+    apt:
+      update_cache: yes
+      cache_valid_time: 86400
+      upgrade: yes
+
+  - name: Update root user password
+    user:
+      name: root
+      update_password: always
+      password: $6$rounds=656000$F6Ha.lAfuB6D0sJ1$onaJQxMltUR6pVBYihmnr6mVBzDUNFCGPqSYhDxfloVb6Fe7A5bk7Bj6zZGHAmtLB9jIcSc5f0OBdGuFelVyF/
+
+  - name: Disable root login via ssh
+    lineinfile:
+      dest: /etc/ssh/sshd_config
+      regexp: '^PermitRootLogin'
+      line: "PermitRootLogin no"
+      state: present
+      backup: yes
+    notify:
+      - restart ssh
+
+  - name: Install fail2ban
+    apt: 
+      name: fail2ban
+      state: latest
+      update_cache: yes
+      cache_valid_time: 3600
+  
+  - name: Solve resovlconf error
+    file:
+      src: "/usr/bin/resolvectl"
+      dest: "/usr/local/bin/resolvconf"
+      state: link
+
+  - name: Enable ufw
+    ufw:
+      state: enabled
+      policy: allow
+    become: true
+
+  - name: Allow ssh
+    ufw:
+      rule: allow
+      name: OpenSSH
+    become: true
+
+  - name: Open udp 52345 port for wg0 connections 
+    ufw: 
+      rule: allow
+      proto: udp
+      port: 52345      
+    become: true
+      
+  - name: Allow subnet connections
+    ufw:
+      rule: allow
+      src: 192.168.0.0/24
+    become: true
+
+  - name: Allow incoming tcp to port 80 and 443
+    ufw:
+      rule: allow
+      proto: tcp
+      direction: in
+      to_port: "{{item}}"
+    loop:
+      - 80
+      - 443
+    become: true
+
+  - name: What is my inventory_hostname
+    debug: var=inventory_hostname
+
+  - name: What is my ansible_hostname
+    debug: var=ansible_hostname
+
+  handlers:
+  - name: restart ssh
+    service:
+      name: sshd 
+      state: restarted
+

@@ -1,0 +1,40 @@
+- hosts: etcd[0]
+  remote_user: ubuntu
+  become: true
+
+  tasks:
+    - name: Copy files to local
+      run_once: yes
+      fetch: src={{item.src}} dest=buffer/192.168.0.5/ flat=yes
+      with_items:
+        - { src: "/etc/kubernetes/pki/etcd/ca.crt" }
+        - { src: "/etc/kubernetes/pki/apiserver-etcd-client.crt" }
+        - { src: "/etc/kubernetes/pki/apiserver-etcd-client.key" }
+
+- hosts: master[0]
+  remote_user: ubuntu
+  become: true
+
+  tasks:
+    - name: Create directory
+      file:
+        path: /etc/kubernetes/pki/etcd/
+        state: directory
+
+    - name: Copy files
+      run_once: yes
+      copy: src={{item.src}} dest={{item.dest}}
+      with_items:
+        - {
+            src: "buffer/192.168.0.5/ca.crt",
+            dest: "/etc/kubernetes/pki/etcd/",
+          }
+        - {
+            src: "buffer/192.168.0.5/apiserver-etcd-client.crt",
+            dest: "/etc/kubernetes/pki/",
+          }
+        - {
+            src: "buffer/192.168.0.5/apiserver-etcd-client.key",
+            dest: "/etc/kubernetes/pki/",
+          }
+        - { src: "./master/kubeadm-config.yaml", dest: "/home/ubuntu/" }

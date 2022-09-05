@@ -1,0 +1,59 @@
+# - hosts: wireguard[0]
+#   remote_user: ubuntu
+#   become: true
+#   tasks:
+    
+#   - name: Copy server config file
+#     fetch: 
+#       src: /etc/wireguard/wg0.conf
+#       dest: buffer/wg0.conf
+#       flat: yes
+
+# - hosts: basics
+#   remote_user: ubuntu
+#   become: true
+#   tasks:    
+
+#   - name: Remove extra text from clients
+#     replace: 
+#       path: /etc/wireguard/wg0.conf
+#       after: 'Endpoint = 15.235.60.92:52345'
+#       regexp: '^(.+)$'
+#       replace: '# \1'
+
+#   - name: Enable port ip_forward
+#     sysctl:
+#       name: net.ipv4.ip_forward
+#       value: '1'
+#       sysctl_set: yes
+
+# - hosts: wireguard[0]
+#   remote_user: ubuntu
+#   become: true
+#   tasks:
+    
+#   - name: Copy from local to server 
+#     copy:
+#       src: buffer/wg0.conf
+#       dest: /etc/wireguard/
+
+# - hosts: wireguard[7]
+#   remote_user: ubuntu
+#   become: true
+#   tasks:
+
+#   - name: Copy from local to backup server 
+#     copy:
+#       src: buffer/wg0.conf
+#       dest: /etc/wireguard/
+
+# - hosts: basics
+#   remote_user: ubuntu
+#   become: true
+#   tasks: 
+
+#   - name: Restart wg0 system 
+#     ansible.builtin.systemd:
+#       state: restarted
+#       daemon_reload: yes
+#       name: wg-quick@wg0.service

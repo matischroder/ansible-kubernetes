@@ -1,0 +1,14 @@
+- hosts: master[0]
+  remote_user: ubuntu
+  become: true
+
+  tasks:
+    - name: Create Chainlink file
+
+    - name: Copy files to local
+      run_once: yes
+      fetch: src={{item.src}} dest=buffer/192.168.0.5/ flat=yes
+      with_items:
+        - { src: "/etc/kubernetes/pki/etcd/ca.crt" }
+        - { src: "/etc/kubernetes/pki/apiserver-etcd-client.crt" }
+        - { src: "/etc/kubernetes/pki/apiserver-etcd-client.key" }

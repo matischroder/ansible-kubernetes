@@ -1,0 +1,76 @@
+# - hosts: wireguard-servers
+#   remote_user: ubuntu
+#   become: true
+
+#   tasks:
+#    - name: Update and upgrade apt packages
+#      apt:
+#        update_cache: yes
+#        cache_valid_time: 86400
+#        upgrade: yes
+
+#    - name: Install keepalived
+#      apt:
+#        name: keepalived
+#        state: present
+
+#    - name: Create keepalived group
+#      group:
+#        name: keepalived_script
+#        state: present
+
+#    - name: Create keepalived user
+#      user:
+#        name: keepalived_script
+#        groups: keepalived_script
+#        shell: /sbin/nologin
+#        append: yes
+
+#    - name: Create bin folder
+#      file:
+#        path: /home/ubuntu/bin
+#        state: directory
+#        mode: '0755'
+
+# - hosts: wireguard-servers[0]
+#   remote_user: ubuntu
+#   become: true
+#   tasks:
+    
+#    - name: Update keepalived files to master server 
+#      copy: src={{ item.src }} dest={{ item.dest }} 
+#      with_items:
+#        - { src: './server-vpn-backup/keepalived1.conf' , dest: '/etc/keepalived/keepalived.conf' }
+#        - { src: './server-vpn-backup/check_vpnserver.sh' , dest: '/etc/keepalived/check_vpnserver.sh' }
+#        - { src: './server-vpn-backup/checkserver.service' , dest: '/etc/systemd/system/checkserver.service' }
+#        - { src: './server-vpn-backup/checkserver.sh' , dest: '/home/ubuntu/bin/checkserver.sh' }
+#        - { src: './server-vpn-backup/master1.py' , dest: '/home/ubuntu/bin/master.py' }
+         
+# - hosts: wireguard-servers[1]
+#   remote_user: ubuntu
+#   become: true
+#   tasks:
+    
+#    - name: Update keepalived files to backup server 
+#      copy: src={{ item.src }} dest={{ item.dest }} 
+#      with_items:
+#        - { src: './server-vpn-backup/keepalived2.conf' , dest: '/etc/keepalived/keepalived.conf' }
+#        - { src: './server-vpn-backup/check_vpnserver.sh' , dest: '/etc/keepalived/check_vpnserver.sh' }
+#        - { src: './server-vpn-backup/checkserver.service' , dest: '/etc/systemd/system/checkserver.service' }
+#        - { src: './server-vpn-backup/checkserver.sh' , dest: '/home/ubuntu/bin/checkserver.sh' }
+#        - { src: './server-vpn-backup/master2.py' , dest: '/home/ubuntu/bin/master.py' }
+
+#    - name: Make checkserver_vpnserver.sh executable
+#      file: dest=/etc/keepalived/check_vpnserver.sh mode=a+x
+         
+#    - name: Enable services 
+#      systemd:
+#       daemon_reload: yes
+#       name: "{{ item }}"
+#       state: restarted
+#      loop:
+#       - keepalived 
+#       - checkserver.service
+
+
+      

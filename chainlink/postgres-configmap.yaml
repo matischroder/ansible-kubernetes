@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-db-config
+  labels:
+    app: postgresql-db
+data:
+  POSTGRES_DB: chainlink_test
+  POSTGRES_USER: link
+  POSTGRES_PASSWORD: Qubistry17
+  PGDATA: /data/pgdata

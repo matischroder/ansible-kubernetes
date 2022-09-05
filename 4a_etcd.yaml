@@ -1,0 +1,89 @@
+- hosts: etcd
+  remote_user: ubuntu
+  become: true
+
+  tasks:
+    - name: Open some tcp ports at etcd nodes
+      ufw:
+        rule: allow
+        interface: wg0
+        direction: in
+        proto: tcp
+        from_port: "{{ item }}"
+        to_port: "{{ item }}"
+      with_items:
+        - 2379
+        - 2380
+        - 2381
+      become: true
+
+    - name: Test etcd nodes
+      shell: |
+        docker run --rm -it \
+        --net host \
+        -v /etc/kubernetes:/etc/kubernetes k8s.gcr.io/etcd:3.5.3-0 etcdctl \
+        --cert /etc/kubernetes/pki/etcd/peer.crt \
+        --key /etc/kubernetes/pki/etcd/peer.key \
+        --cacert /etc/kubernetes/pki/etcd/ca.crt \
+        --endpoints https://192.168.0.2:2379 endpoint health --cluster
+      register: result
+      ignore_errors: True
+
+    - name: Reset etcd nodes if test fails
+      shell: kubeadm reset -f
+      when: "'Error' in result.stdout"
+
+    - name: Delete etcd folders if test fails
+      file:
+        state: absent
+        path: /etc/cni/net.d
+      when: "'Error' in result.stdout"
+
+    - name: Create kubelet directory
+      file:
+        path: /var/lib/kubelet
+        state: directory
+        mode: "0755"
+      when: "'Error' in result.stdout"
+
+    - name: Configure kubelet
+      copy:
+        src: ./etcd/kubelet-config.yaml
+        dest: /var/lib/kubelet/config.yaml
+      when: "'Error' in result.stdout"
+
+    - name: Configure kubelet service
+      copy:
+        src: ./etcd/kubelet.service.d_20-etcd-service-manager.conf
+        dest: /etc/systemd/system/kubelet.service.d/20-etcd-service-manager.conf
+      when: "'Error' in result.stdout"
+
+    - name: Configure containerd
+      shell: containerd config default > /etc/containerd/config.toml
+      when: "'Error' in result.stdout"
+
+    - name: Change containerd cgroup
+      lineinfile:
+        path: /etc/containerd/config.toml
+        regexp: "^(.*)SystemdCgroup(.*)$"
+        line: "            SystemdCgroup = true"
+      become: true
+
+    - name: Comment disable cri containerd
+      replace:
+        path: /etc/containerd/config.toml
+        regexp: "^(.*)disabled_plugins(.*)$"
+        replace: '#disabled_plugins = ["cri"]'
+      become: true
+    - name: Systemd daemon reload
+      systemd:
+        daemon_reload: yes
+
+    - name: Restart services
+      systemd:
+        name: "{{ item }}"
+        state: restarted
+      loop:
+        - containerd
+        - kubelet
+      when: "'Error' in result.stdout"
