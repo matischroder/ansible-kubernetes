@@ -4,8 +4,6 @@ Create HA Kubernetes at VPS
 
 If there is any obstacle you can always check the [official documentation](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/high-availability/)
 
-[image]
-
 On the hosts.yaml change the hosts to yours. We are following the schema above but the wireguard servers can be on others servers.
 
 After running 1vpn.yaml ansible playbooks try to connect to servers each other using 192.168.0.n ipv4.
