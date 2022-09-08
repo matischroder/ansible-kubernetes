@@ -1,8 +1,0 @@
-ssh-keygen -f "/home/matischroder/.ssh/known_hosts" -R "51.161.33.13"
-ssh-keygen -f "/home/matischroder/.ssh/known_hosts" -R "164.132.55.138"
-ssh-keygen -f "/home/matischroder/.ssh/known_hosts" -R "144.217.7.150"
-ssh-keygen -f "/home/matischroder/.ssh/known_hosts" -R "164.132.55.139"
-ssh-keygen -f "/home/matischroder/.ssh/known_hosts" -R "144.217.4.77"
-ssh-keygen -f "/home/matischroder/.ssh/known_hosts" -R "144.217.5.107"
-ssh-keygen -f "/home/matischroder/.ssh/known_hosts" -R "164.132.55.129"
-ssh-keygen -f "/home/matischroder/.ssh/known_hosts" -R "51.79.69.211"
