@@ -73,6 +73,39 @@ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ```
 
+Install helm:
+
+```
+curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
+sudo apt-get install apt-transport-https --yes
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+sudo apt-get update
+sudo apt-get install helm
+```
+
+Configure network
+
+As first option you can use Cilium:
+
+```
+helm repo add cilium https://helm.cilium.io/
+
+kubectl create secret generic -n kube-system cilium-etcd-secrets \
+    --from-file=etcd-client-ca.crt=/etc/kubernetes/pki/etcd/ca.crt \
+    --from-file=etcd-client.key=/etc/kubernetes/pki/apiserver-etcd-client.key \
+    --from-file=etcd-client.crt=/etc/kubernetes/pki/apiserver-etcd-client.crt
+
+helm install cilium cilium/cilium --version 1.12.1 \
+  --namespace kube-system \
+  --set etcd.enabled=true \
+  --set etcd.ssl=true \
+  --set "etcd.endpoints[0]=https://192.168.0.2:2379" \
+  --set "etcd.endpoints[1]=https://192.168.0.3:2379" \
+  --set "etcd.endpoints[2]=https://192.168.0.4:2379"
+```
+
+Another option is to use Veave:
+
 ```
 kubectl --kubeconfig /etc/kubernetes/admin.conf apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
 kubectl --kubeconfig /etc/kubernetes/admin.conf get pod -n kube-system -w
